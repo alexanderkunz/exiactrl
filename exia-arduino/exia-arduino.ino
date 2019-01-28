@@ -1,18 +1,18 @@
 
 // data pins (button pin)
-#define DATA_PIN1 6
-#define DATA_PIN2 5
+#define DATA_PIN1 5
+#define DATA_PIN2 6
 
 // mode state
-int mode_current = 0;
-const int mode_number = 6;
+unsigned int mode_current = 0;
+const unsigned int mode_number = 6;
 
 // counter state
-long loop_current = 0;
+unsigned long loop_current = 0;
 const unsigned long loop_delay = 1;
-const unsigned long loop_number = 1000 / loop_delay * 60 * 60 * 10;
+const unsigned long loop_number = ((unsigned long) 1000 * 60 * 10) / loop_delay;
 
-void sleep(int ms) {
+void sleep(unsigned long ms) {
   delay(ms);
   loop_current += ms / loop_delay;
 }
@@ -31,7 +31,7 @@ void setup() {
 void loop() {
 
   // check if data is arriving
-  while (Serial.available()) {
+  while (Serial.available() > 0) {
 
     // read single char
     int input = Serial.read();
@@ -60,8 +60,8 @@ void loop() {
   }
 
   // refresh mode
-  sleep(loop_delay);
-  if (loop_current >= loop_number) {
+  delay(loop_delay);
+  if (++loop_current >= loop_number) {
     int mode_last = mode_current;
     nextMode();
     setMode(mode_last);
