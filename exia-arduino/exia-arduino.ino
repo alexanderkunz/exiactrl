@@ -1,16 +1,19 @@
 
 // data pins (button pin)
 #define DATA_PIN1 5
-#define DATA_PIN2 6
+#define DATA_PIN2 13
+
+// MODEL
+//#define PHENEX // uncomment this if you have a PHENEX/UNICORN
 
 // mode state
 unsigned int mode_current = 0;
-const unsigned int mode_number = 6;
+const unsigned int mode_number = 6; // PHENEX/UNICORN: 3, EXIA: 6
 
 // counter state
 unsigned long loop_current = 0;
 const unsigned long loop_delay = 1;
-const unsigned long loop_number = ((unsigned long) 1000 * 60 * 10) / loop_delay;
+const unsigned long loop_number = ((unsigned long) 1000 * 60 * 5) / loop_delay;
 
 void sleep(unsigned long ms) {
   delay(ms);
@@ -22,6 +25,11 @@ void setup() {
   // set pin modes
   pinMode(DATA_PIN1, OUTPUT);
   pinMode(DATA_PIN2, OUTPUT);
+
+  // set this to your preferred mode if you just want
+  // your gundam to not go into sleep in your favorite mode
+  // this will be the mode it changes to when being plugged in
+  //setMode(5);
 
   // start serial
   Serial.begin(9600);
@@ -81,14 +89,20 @@ void nextMode() {
   // set to high for modus change
   digitalWrite(DATA_PIN1, HIGH);
   digitalWrite(DATA_PIN2, HIGH);
-  sleep(100);
+  sleep(200);
 
   // set to low again
   digitalWrite(DATA_PIN1, LOW);
   digitalWrite(DATA_PIN2, LOW);
 
   // ensure mode set is done
-  sleep(100);
+  sleep(200);
+
+  // phenex/unicorn eye needs more sleep
+#ifdef PHENEX
+  if (mode_current == 2)
+    sleep(5000);
+#endif
 
   // remember the current mode
   mode_current = (mode_current + 1) % mode_number;
